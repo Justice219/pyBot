@@ -1,1 +1,2 @@
-*.env
+# add .env files
+echo "Adding .env files"
