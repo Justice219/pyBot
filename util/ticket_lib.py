@@ -56,6 +56,34 @@ class TicketsLib:
         self.ticket_data = {}
         self.write_ticket_data()
 
+    async def send_ticket_message(self, channel, ticket_id, ticket_class):
+        # create the embed
+        embed = discord.Embed(
+            title="Ticket: " + str(ticket_id),
+            description="Support will be with you shortly!",
+            color=discord.Colour.blurple(),
+        )
+
+        # create a button view
+        class MyView(discord.ui.View):
+            def __init__(self, ticket_id):
+                super().__init__()
+
+            @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close_ticket")
+            async def close_button_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+                # Close the ticket
+                await ticket_class.close_ticket(ticket_id)
+                await interaction.response.send_message("Ticket closed.")
+
+            @discord.ui.button(label="Copy ID", style=discord.ButtonStyle.blurple, custom_id="copy_id")
+            async def copy_id_button_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+                # Copy the ticket ID to the clipboard
+                await self.bot.copy_to_clipboard(ticket_id)
+                await interaction.response.send_message("Ticket ID copied to clipboard.")\
+                
+        # send the message
+        await channel.send(embed=embed, view=MyView(ticket_id))
+
     async def set_ticket_permissions(self, channel, user_id):
         # get the user
         guild = await self.bot.fetch_guild(self.guild_id)
@@ -96,7 +124,21 @@ class TicketsLib:
         
         channel = await guild.fetch_channel(channel_id)
         return channel
+    
+    async def get_ticket(self, ticket_id):
+        guild = await self.bot.fetch_guild(self.guild_id)
+        if guild is None:
+            print("Error: Guild not found.")
+            print("Guild ID:", self.guild_id)
+            return None
         
+        channel = discord.utils.get(guild.channels, name=f'ticket-{ticket_id}')
+        if channel is None:
+            print("Error: Channel not found.")
+            print("Channel ID:", ticket_id)
+            return None
+        
+        return channel
 
     async def create_ticket(self, user_id):
         # create the ticket id
@@ -137,6 +179,9 @@ class TicketsLib:
             # set the permissions
             await self.set_ticket_permissions(channel, user_id)
 
+            # send the ticket message
+            await self.send_ticket_message(channel, ticket_id, self)
+
             # return the channel and ticket id
             return channel, ticket_id
         
@@ -167,19 +212,3 @@ class TicketsLib:
         
         # delete the channel
         await channel.delete()
-
-    async def get_ticket(self, ticket_id):
-        guild = await self.bot.fetch_guild(self.guild_id)
-        if guild is None:
-            print("Error: Guild not found.")
-            print("Guild ID:", self.guild_id)
-            return None
-        
-        channel = discord.utils.get(guild.channels, name=f'ticket-{ticket_id}')
-        if channel is None:
-            print("Error: Channel not found.")
-            print("Channel ID:", ticket_id)
-            return None
-        
-        return channel
-

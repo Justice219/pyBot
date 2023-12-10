@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord.commands import SlashCommandGroup
 from util.ticket_lib import TicketsLib
+from discord.ui import Button, View
 
 class TicketCommands(commands.Cog):
     def __init__(self, bot):
@@ -14,10 +15,6 @@ class TicketCommands(commands.Cog):
     async def create(self, ctx):
         # create the ticket
         awachannel, ticket_id = await self.ticket.create_ticket(ctx.author.id)
-        # send a message in the ticket
-        await awachannel.send(f"Welcome {ctx.author.mention}!")
-        # send ticket id
-        await awachannel.send(f"Ticket ID: {ticket_id}")
 
         # send a message
         await ctx.respond(f"Created a ticket at {awachannel.mention}")
@@ -25,7 +22,7 @@ class TicketCommands(commands.Cog):
     @ticket.command(description="Close a ticket")
     async def close(self, ctx, ticket_id: int):
         # close the ticket
-        await self.ticket.close_ticket(ctx.author.id)
+        await self.ticket.close_ticket(ticket_id)
 
         # send a message
         await ctx.respond("Closed a ticket")
