@@ -2,6 +2,7 @@ import os
 import json
 import discord
 from discord.ext import commands
+from buttons.internalTicket import InternalTicket
 
 class TicketsLib:
     def __init__(self, bot):
@@ -63,26 +64,9 @@ class TicketsLib:
             description="Support will be with you shortly!",
             color=discord.Colour.blurple(),
         )
-
-        # create a button view
-        class MyView(discord.ui.View):
-            def __init__(self, ticket_id):
-                super().__init__()
-
-            @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close_ticket")
-            async def close_button_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-                # Close the ticket
-                await ticket_class.close_ticket(ticket_id)
-                await interaction.response.send_message("Ticket closed.")
-
-            @discord.ui.button(label="Copy ID", style=discord.ButtonStyle.blurple, custom_id="copy_id")
-            async def copy_id_button_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-                # Copy the ticket ID to the clipboard
-                await self.bot.copy_to_clipboard(ticket_id)
-                await interaction.response.send_message("Ticket ID copied to clipboard.")\
                 
         # send the message
-        await channel.send(embed=embed, view=MyView(ticket_id))
+        await channel.send(embed=embed, view=InternalTicket(ticket_id, ticket_class))
 
     async def set_ticket_permissions(self, channel, user_id):
         # get the user
