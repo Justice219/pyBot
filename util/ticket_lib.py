@@ -242,3 +242,8 @@ class TicketsLib:
         
         # delete the channel
         await channel.delete()
+
+        # delete the ticket data
+        del self.ticket_data[self.guild_id][ticket_id]
+        self.write_ticket_data()
+        
