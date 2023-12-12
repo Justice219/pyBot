@@ -1,26 +1,22 @@
 import discord
+import discord.ui
 
-class AddMember(discord.ui.View):
-    def __init__(self, ticket_id, ticket_class):
-        super().__init__()
+class AddMember(discord.ui.Modal):
+    def __init__(self, ticket_id, ticket_class, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.ticket_id = ticket_id
         self.ticket_class = ticket_class
-        self.ticket = self.ticket_class.find_ticket(self.ticket_id)
+        self.add_item(discord.ui.InputText(label="Member ID"))
 
-    def create_options(self):
-        options = []
-        for member in self.ticket.members:
-            options.append(discord.SelectOption(
-                label="test",
-                description=f"Pick this if you like!"
-            ))
-        return options
+    async def callback(self, interaction: discord.Interaction):
+        # reference the user_id from the input
+        user_id = self.children[0].value
 
-    @discord.ui.select(
-        placeholder = "Choose a Flavor!",
-        min_values = 1,
-        max_values = 1,
-        options = create_options
-    )
-    async def select_callback(self, select, interaction):
-        await interaction.response.send_message(f"Awesome! I like {select.values[0]} too!")
+        # check if the user is a real user
+        user = await self.ticket_class.find_user(user_id)
+        if user == True:
+            await self.ticket_class.add_member_to_ticket(self.ticket_id, user_id)
+
+            await interaction.response.send_message("Added member.")
+        else:
+            await interaction.response.send_message("User not found.")

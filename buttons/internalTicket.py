@@ -23,6 +23,8 @@ class InternalTicket(discord.ui.View):
 
     @discord.ui.button(label="Add Member", style=discord.ButtonStyle.green, custom_id="add_member")
     async def add_member_button_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        # Add a member to the ticket
-        await interaction.response.send_message("Added a member to the ticket.")
-        await interaction.message.edit(view=AddMember(self.ticket_id, self.ticket_class))
+        try:
+            await interaction.response.send_modal(AddMember(title="Add Member", ticket_id=self.ticket_id, ticket_class=self.ticket_class))
+        except discord.InteractionResponded:
+            await interaction.response.send_message("You already have a modal open!", ephemeral=True)
+
