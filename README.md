@@ -2,9 +2,12 @@
 # pyTicketsBot
 
 A simple, yet powerful discord tickets bot created with [Pycord](https://pycord.dev")  
+This is a heavy work in progress.
 
 
 ## Deployment
+
+Python 3.10 or 3.11 required.
 
 Install the needed requirements using the txt file.
 
