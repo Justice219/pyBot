@@ -1,29 +1,22 @@
 import discord
 
-class RemoveMember(discord.ui.View):
-    def __init__(self, ticket_id, ticket_class):
-        super().__init__()
+
+class RemoveMember(discord.ui.Modal):
+    def __init__(self, ticket_id, ticket_class, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.ticket_id = ticket_id
         self.ticket_class = ticket_class
+        self.add_item(discord.ui.InputText(label="Member ID"))
 
-    @discord.ui.select( # the decorator that lets you specify the properties of the select menu
-        placeholder = "Choose a Flavor!", # the placeholder text that will be displayed if nothing is selected
-        min_values = 1, # the minimum number of values that must be selected by the users
-        max_values = 1, # the maximum number of values that can be selected by the users
-        options = [ # the list of options from which users can choose, a required field
-            discord.SelectOption(
-                label="Vanilla",
-                description="Pick this if you like vanilla!"
-            ),
-            discord.SelectOption(
-                label="Chocolate",
-                description="Pick this if you like chocolate!"
-            ),
-            discord.SelectOption(
-                label="Strawberry",
-                description="Pick this if you like strawberry!"
-            )
-        ]
-    )
-    async def select_callback(self, select, interaction): # the function called when the user is done selecting options
-        await interaction.response.send_message(f"Awesome! I like {select.values[0]} too!")
+    async def callback(self, interaction: discord.Interaction):
+        # reference the user_id from the input
+        user_id = self.children[0].value
+
+        # check if the user is a real user
+        user = await self.ticket_class.find_user(user_id)
+        if user == True:
+            await self.ticket_class.remove_member_from_ticket(self.ticket_id, user_id)
+
+            await interaction.response.send_message("Removed member.")
+        else:
+            await interaction.response.send_message("User not found.")

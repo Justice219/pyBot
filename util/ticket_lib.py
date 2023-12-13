@@ -117,6 +117,35 @@ class TicketsLib:
         
         await channel.set_permissions(user, read_messages=True, send_messages=True)
 
+    async def remove_member_from_ticket(self, ticket_id, user_id):
+        # update the ticket data
+        ticket = await self.find_ticket(ticket_id)
+        if ticket is None:
+            print("Error: Ticket not found.")
+            print("Ticket ID:", ticket_id)
+            return None
+        
+        ticket_data = self.ticket_data[self.guild_id][ticket_id]
+        ticket_data['members'].remove(user_id)
+        self.write_ticket_data()
+
+        # allow the user to see the channel
+        channel_id = self.ticket_data[self.guild_id][ticket_id]['channel_id']
+        channel = await self.bot.fetch_channel(channel_id)
+
+        if channel is None:
+            print("Error: Channel not found.")
+            print("Channel ID:", channel_id)
+            return None
+        
+        user = await self.bot.fetch_user(user_id)
+        if user is None:
+            print("Error: User not found.")
+            print("User ID:", user_id)
+            return None
+        
+        await channel.set_permissions(user, read_messages=False, send_messages=False)
+
     async def find_user(self, user_id):
         user = None
         guild = await self.bot.fetch_guild(self.guild_id)
