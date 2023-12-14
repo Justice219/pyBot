@@ -4,3 +4,4 @@ echo "Adding .env files"
 .env
 *.env
 tickets.json
+settings.json
