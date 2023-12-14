@@ -2,17 +2,21 @@ import discord
 from discord.ext import commands
 from discord.commands import SlashCommandGroup
 from util.ticket_lib import TicketsLib
+from util.settings_lib import SettingsLib
 from discord.ui import Button, View
 
 class TicketCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.ticket = TicketsLib(bot) # replace with your guild id
+        self.settings = SettingsLib()
 
     ticket = SlashCommandGroup("ticket", "Ticket commands")
 
     @ticket.command(description="Create a ticket")
     async def create(self, ctx):
+        # check if guild i
+
         # create the ticket
         awachannel, ticket_id = await self.ticket.create_ticket(ctx.author.id)
 
@@ -50,6 +54,18 @@ class TicketCommands(commands.Cog):
         if isinstance(error, commands.NotOwner):
             await ctx.respond("You can't use that command!")
         else:
+            messageEmbed = discord.Embed(
+                title="Error!",
+                description="Something went wrong! Ensure the bot has been setup properly.",
+                color=discord.Colour.red()
+            )
+            trackebackEmbed = discord.Embed(
+                title="Error Traceback",
+                description=f"```{error}```",
+                color=discord.Colour.red()
+            )
+            await ctx.respond(embed=messageEmbed)
+            await ctx.respond(embed=trackebackEmbed)
             raise error  # Raise other errors so they aren't ignored
 
 def setup(bot):

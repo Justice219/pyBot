@@ -204,19 +204,6 @@ class TicketsLib:
         return channel
 
     async def create_ticket(self, user_id):
-        # create the ticket id
-        ticket_id = self.create_unique_ticket_id()
-
-        # update the ticket data
-        self.ticket_data.setdefault(self.guild_id, {})
-        self.ticket_data[self.guild_id][ticket_id] = {
-            'user_id': user_id,
-            'ticket_id': ticket_id,
-            'channel_id': None,
-            'members': []
-        }
-        self.write_ticket_data()
-
         # get the guild
         guild = await self.bot.fetch_guild(self.guild_id)
         if guild is None:
@@ -230,6 +217,19 @@ class TicketsLib:
             print("Error: Category not found.")
             print("Category ID:", self.category_id)
             return None
+
+        # create the ticket id
+        ticket_id = self.create_unique_ticket_id()
+
+        # update the ticket data
+        self.ticket_data.setdefault(self.guild_id, {})
+        self.ticket_data[self.guild_id][ticket_id] = {
+            'user_id': user_id,
+            'ticket_id': ticket_id,
+            'channel_id': None,
+            'members': []
+        }
+        self.write_ticket_data()
 
         try:
             # create the channel
