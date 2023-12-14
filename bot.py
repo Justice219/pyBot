@@ -6,7 +6,8 @@ from dotenv import load_dotenv
  # load all the variables from the env file
 load_dotenv()
 
-bot = commands.Bot()
+intents = discord.Intents.all()
+bot = commands.Bot(intents=intents, command_prefix="!", help_command=None)
 
 @bot.event
 async def on_ready():

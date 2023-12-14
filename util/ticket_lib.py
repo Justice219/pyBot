@@ -53,6 +53,10 @@ class TicketsLib:
         for channel in category.channels:
             await channel.delete()
     
+        # reset settings
+        self.guild_id = self.load_settings('guild_id')
+        self.category_id = self.load_settings('category_id')
+
         # clear the ticket data
         self.ticket_data = {}
         self.write_ticket_data()
